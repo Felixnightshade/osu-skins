@@ -20,7 +20,7 @@ Mostly a gimmick skin in SD, but if you're playing traceable, it's absolutely ne
 
 The approach circle could probably use some size-tuning, as its current size is just arbitrarily good enough for me.
 
-The only real things it changes are the approach circle and hiding a bunch of stuff you couldn't see in TC anyway so that the skin doesn't look absolutely derpy in SD.
+The only real things it changes are the approach circle and hiding a bunch of stuff you couldn't see in TC anyway so that the skin doesn't look absolutely derpy in SD. This actually makes SD look very similar to TC, which I assume would work in stable. This does, however, make hidden impossible with this version of the skin. 
 
 #### Original
 
