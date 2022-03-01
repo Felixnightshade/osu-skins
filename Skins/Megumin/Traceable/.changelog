@@ -1,0 +1,19 @@
+Megumin Traceable
+from Megumin Standard
+
+<Ashen>
+# Objective: Make the approach-circles act like good hit-circles.
+/ approachcircle@2x.png
+X default-0@2x.png
+X default-1@2x.png
+X default-2@2x.png
+X default-3@2x.png
+X default-4@2x.png
+X default-5@2x.png
+X default-6@2x.png
+X default-7@2x.png
+X default-8@2x.png
+X default-9@2x.png
+X hitcircle@2x.png
+X hitcircleoverloay@2x.png
+# TODO: Replace transparent images with 1x1px transparent images.
