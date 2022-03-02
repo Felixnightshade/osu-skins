@@ -2,9 +2,11 @@ Megumin Standard
 
 <Atomic>
 # Many differences from base. Might record them here, might not.
+# Status: Finished
 
-<Atomic Attack>
+<Burning>
 # Objective: Remove redundant files
+# Status: Finished
 - approachcircle.png
 - arrow-generic.png
 - arrow-warning.png
@@ -86,6 +88,12 @@ Megumin Standard
 - spinner-middle.png
 - spinner-middle2.png
 
-<Burning>
+<Burning Attack>
 # Objective: Sort every element into the context in which it appears.
+# Status: Unfinished/Abandoned
 - ranking-graph.png
+
+<Burning Balance>
+# Objective: Sort every element into the context in which it appears.
+# However, do so in a more standardized manner using existing lists.
+# Status: Finished
