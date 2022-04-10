@@ -1,0 +1,221 @@
+#!/bin/bash
+# Bash script utility to build the skins
+
+main () {
+  set -e
+
+  # red, normal, copydir
+  initconstants
+
+  # Get base skin folder path
+  setbasepath "$1" ; shift
+
+  # This sets a variable for the directory directly above basepath
+  setabasepath
+
+  # Parses patches, custom name, flags
+  handleparams "$@"
+
+  # Sets folder names needed for later reference
+  setnames
+
+  # Makes the temporary folder where all the files will be gathered
+  initworkingfolder
+
+  # Gathers all the files from the base
+  # and patches into the working folder
+  gatherfiles
+
+  # Makes the .osk archive in the working folder
+  makearchive
+
+  # Moves the .osk archive to the abasepath folder
+  movearchive
+
+  # Removes the working folder and all its contents
+  deleteworkingfolder
+}
+
+
+initconstants () {
+  # Colors
+  red=$(tput setaf 1)
+  normal=$(tput sgr0)
+
+  # The temp directory name
+  copydir="temp directory for osk creation"
+
+  numofcopies=0
+}
+
+
+setbasepath () {
+  basepath="$(normalize_path "$1")"
+}
+
+
+setabasepath () {
+  local currentdir="$(pwd)"
+  cd "$basepath" ; cd ".."
+  abasepath="$(pwd)"
+  cd "$currentdir"
+}
+
+
+# Standardizes the folder path input
+normalize_path () {
+  local currentdir="$(pwd)"
+  if cd "$1"
+  then
+    echo "$(pwd)"
+    cd "$currentdir"
+  else
+    printf '%s\n' "${red}ERROR!${normal} A proper path was not provided (\"$1\")." >&2
+    exit 1
+  fi
+}
+
+
+handleparams () {
+  local currentdir="$(pwd)"
+
+  while getopts "p:n:" param; do
+    case "${param}" in
+      p)  addpatch "$OPTARG";;
+      n)  name="$OPTARG";;
+      \?) printf '%s\n' "${red}ERROR!${normal} An error related to your parameters has occured." >&2
+          exit 1;;
+    esac
+  done
+
+  cd "$currentdir"
+}
+
+
+addpatch () {
+  local currentdir="$(pwd)"
+
+  if [ -d "$1" ]; then
+    cd "$1"
+    patches+=("$(pwd)")
+    cd ".."
+    uppatches+=("$(pwd)")
+  else
+    printf '%s\n' "${red}ERROR!${normal} A proper path to a patch folder was not provided (\"$1\")." >&2
+    exit 1
+  fi
+
+  cd "$currentdir"
+}
+
+
+setnames () {
+  local currentdir="$(pwd)"
+
+  # Set basename
+  cd "$basepath" ; cd ".." ; cd ".."
+  basename="$(basename "`pwd`")"
+  cd "$basepath" ; cd ".."
+  basename+="-$(basename "`pwd`")"
+  cd "$basepath"
+  basename+="-$(basename "`pwd`")"
+  # Set patchnames
+  local patchname=""
+  for patch in "${patches[@]}"; do
+    cd "$patch" ; cd ".."
+    patchname="$(basename "`pwd`")"
+    cd "$patch"
+    patchname+="-$(basename "`pwd`")"
+    patchnames+=("$patchname")
+  done
+  # Set complete name
+  if [ -z $name ]; then
+    completename="$basename"
+    for name in "${patchnames[@]}" ; do
+      completename+=" + $name"
+    done
+  fi
+
+  cd "$currentdir"
+}
+
+
+initworkingfolder () {
+  local currentdir="$(pwd)"
+
+  if [ -d "$abasepath/$copydir" ]; then
+    rm -r "$abasepath/$copydir"
+  fi
+  mkdir "$abasepath/$copydir"
+  mkdir "$abasepath/$copydir/$completename"
+
+  cd "$currentdir"
+}
+
+
+gatherfiles () {
+  local currentdir="$(pwd)"
+
+  copyfiles "$basepath" "$basename"
+  for i in "${!patches[@]}"; do
+    copyfiles "${patches[i]}" "${patchnames[i]}"
+  done
+
+  cd "$currentdir"
+}
+
+
+copyfiles () {
+  local currentdir="$(pwd)"
+
+  cd "$1" ; cd ".."
+
+  find "$1/" -type f -exec cp "{}" "$abasepath/$copydir/$completename" \;
+
+  if [ -f "$(pwd)/.changelog" ]; then
+    let numofcopies+=1
+    cp "$(pwd)/.changelog" "$abasepath/$copydir/$completename"
+    mv "$abasepath/$copydir/$completename/.changelog" "$abasepath/$copydir/$completename/.$numofcopies.$2.changelog"
+  fi
+
+  cd "$currentdir"
+}
+
+
+makearchive () {
+  local currentdir="$(pwd)"
+
+  cd "$abasepath/$copydir"
+  zip -rq "$completename.osk" "$completename"
+
+  cd "$currentdir"
+}
+
+
+movearchive () {
+  local currentdir="$(pwd)"
+
+  if [ -f "$abasepath/$completename.osk" ]; then
+    rm "$abasepath/$completename.osk"
+  fi
+  mv "$abasepath/$copydir/$completename.osk" "$abasepath"
+
+  cd "$currentdir"
+}
+
+
+deleteworkingfolder () {
+  local currentdir="$(pwd)"
+
+  rm -r "$abasepath/$copydir"
+
+  cd "$currentdir"
+}
+
+
+#setflags () {
+#  exit
+#}
+
+
+main "$@"
